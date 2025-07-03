@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import Task from '../models/Task';
+import mongoose from 'mongoose';
+
+const isValidObjectId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 
 export const createTask = async (req: Request, res: Response) => {
   const { title, description, status } = req.body;
@@ -20,6 +23,9 @@ export const getTasks = async (_: Request, res: Response) => {
 
 export const getTaskById = async (req: Request, res: Response) => {
   const { id } = req.params;
+  if (!id || !isValidObjectId(id)) {
+    return res.status(400).json({ error: 'Invalid or missing task ID' });
+  }
   const task = await Task.findById(id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
   res.json(task);
@@ -27,6 +33,9 @@ export const getTaskById = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   const { id } = req.params;
+  if (!id || !isValidObjectId(id)) {
+    return res.status(400).json({ error: 'Invalid or missing task ID' });
+  }
   const { title, description, status } = req.body;
   const task = await Task.findByIdAndUpdate(
     id,
@@ -39,6 +48,9 @@ export const updateTask = async (req: Request, res: Response) => {
 
 export const deleteTask = async (req: Request, res: Response) => {
   const { id } = req.params;
+  if (!id || !isValidObjectId(id)) {
+    return res.status(400).json({ error: 'Invalid or missing task ID' });
+  }
   const task = await Task.findByIdAndDelete(id);
   if (!task) return res.status(404).json({ error: 'Task not found' });
   res.json({ message: 'Task deleted' });
